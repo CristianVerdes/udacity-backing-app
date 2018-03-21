@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import com.example.cristianverdes.bakingapp.R;
 import com.example.cristianverdes.bakingapp.data.model.Recipe;
 import com.example.cristianverdes.bakingapp.ui.recipe.RecipeActivity;
+import com.example.cristianverdes.bakingapp.utils.Injection;
 
 import java.util.List;
 
@@ -52,8 +53,7 @@ public class RecipesActivity extends AppCompatActivity {
     }
 
     private void instantiateViewModel() {
-        recipesViewModel = ViewModelProviders.of(this).get(RecipesViewModel.class);
-
+        recipesViewModel = new RecipesViewModel(Injection.provideRecipesRepository(this));
     }
 
     private void subscribeToDataStream() {

@@ -19,6 +19,7 @@ import com.example.cristianverdes.bakingapp.R;
 import com.example.cristianverdes.bakingapp.data.model.Recipe;
 import com.example.cristianverdes.bakingapp.data.model.Step;
 import com.example.cristianverdes.bakingapp.ui.listrecipes.RecipesViewModel;
+import com.example.cristianverdes.bakingapp.utils.Injection;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -186,7 +187,7 @@ public class StepFragment extends Fragment {
     }
 
     private void createViewModel() {
-        recipesViewModel = ViewModelProviders.of(this).get(RecipesViewModel.class);
+        recipesViewModel = new RecipesViewModel(Injection.provideRecipesRepository(this.getContext()));
     }
 
     private void subscribeToDataStreams() {

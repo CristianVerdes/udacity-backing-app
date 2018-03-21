@@ -5,22 +5,25 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
 import com.example.cristianverdes.bakingapp.data.model.Recipe;
+import com.example.cristianverdes.bakingapp.data.repositories.RecipesRepository;
 
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by cristian.verdes on 14.03.2018.
  */
 
 public class RecipesViewModel extends ViewModel {
-    private GetRecipesUseCase getRecipesUseCase;
+    private RecipesRepository recipesRepository;
     private MutableLiveData<List<Recipe>> recipes = new MutableLiveData<>();
 
     // Constructor
-    public RecipesViewModel(){
-        this.getRecipesUseCase = new GetRecipesUseCase();
+    public RecipesViewModel(RecipesRepository recipesRepository){
+        this.recipesRepository = recipesRepository;
         loadRecipes();
     }
 
@@ -30,12 +33,14 @@ public class RecipesViewModel extends ViewModel {
     }
 
     public void loadRecipes() {
-        this.getRecipesUseCase.get()
-        .subscribe(new Consumer<List<Recipe>>() {
-            @Override
-            public void accept(List<Recipe> recipes) throws Exception {
-                RecipesViewModel.this.recipes.setValue(recipes);
-            }
+        recipesRepository.loadRecipes()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<Recipe>>() {
+                        @Override
+                        public void accept(List<Recipe> recipes) throws Exception {
+                            RecipesViewModel.this.recipes.setValue(recipes);
+                        }
         });
     }
 }

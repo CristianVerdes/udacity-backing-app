@@ -54,7 +54,6 @@ public class RecipeActivity extends AppCompatActivity{
                     .replace(R.id.fl_steps_container, recipeFragment)
                     .commit();
 
-
         } else {
             twoPane = false;
 

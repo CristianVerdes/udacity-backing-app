@@ -62,4 +62,16 @@ dependencies {
 
     // ExoPlayer
     implementation 'com.google.android.exoplayer:exoplayer:2.6.1'
+
+    // Room
+    implementation 'android.arch.persistence.room:runtime:1.0.0'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.0.0'
+
+    // Dagger 2
+    implementation 'com.google.dagger:dagger:2.13'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.13'
+
+    // Dagger Android dependencies
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.13'
+    compile 'com.google.dagger:dagger-android:2.13'
 }

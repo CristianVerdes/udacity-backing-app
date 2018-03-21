@@ -22,6 +22,7 @@ import com.example.cristianverdes.bakingapp.data.model.Step;
 import com.example.cristianverdes.bakingapp.ui.ingredients.IngredientsActivity;
 import com.example.cristianverdes.bakingapp.ui.listrecipes.RecipesViewModel;
 import com.example.cristianverdes.bakingapp.ui.step.StepFragment;
+import com.example.cristianverdes.bakingapp.utils.Injection;
 
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -129,7 +130,7 @@ public class RecipeFragment extends Fragment{
         recipesViewModel.getRecipes().observe(this, new Observer<List<Recipe>>() {
             @Override
             public void onChanged(@Nullable List<Recipe> recipes) {
-                if (recipes != null) {
+                if (recipes != null && recipes.size() != 0) {
                     List<Step> steps = recipes.get(recipeId - 1).getSteps();
                     if (steps != null) {
                         // Hide progressbar and show data
@@ -142,13 +143,12 @@ public class RecipeFragment extends Fragment{
                 } else {
                     Log.e(TAG, "Error: No recipes");
                 }
-
             }
         });
     }
 
     private void createViewModel() {
-        recipesViewModel = ViewModelProviders.of(this).get(RecipesViewModel.class);
+        recipesViewModel = new RecipesViewModel(Injection.provideRecipesRepository(this.getContext()));
     }
 
     public void hideProgressbar() {

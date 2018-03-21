@@ -18,6 +18,7 @@ import com.example.cristianverdes.bakingapp.data.model.Ingredient;
 import com.example.cristianverdes.bakingapp.data.model.Recipe;
 import com.example.cristianverdes.bakingapp.data.model.Step;
 import com.example.cristianverdes.bakingapp.ui.listrecipes.RecipesViewModel;
+import com.example.cristianverdes.bakingapp.utils.Injection;
 
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class IngredientsActivity extends AppCompatActivity {
     }
 
     private void createViewModel() {
-        recipesViewModel = ViewModelProviders.of(this).get(RecipesViewModel.class);
+        recipesViewModel = new RecipesViewModel(Injection.provideRecipesRepository(this));
     }
 
     private void subscribeToDataStream() {
