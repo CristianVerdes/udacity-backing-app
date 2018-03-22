@@ -5,7 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
 import com.example.cristianverdes.bakingapp.data.model.Recipe;
-import com.example.cristianverdes.bakingapp.data.repositories.RecipesRepository;
+import com.example.cristianverdes.bakingapp.data.repository.RecipesRepository;
 
 import java.util.List;
 

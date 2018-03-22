@@ -1,17 +1,22 @@
 package com.example.cristianverdes.bakingapp.widgets;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-/**
- * Created by cristian.verdes on 20.03.2018.
- */
+import com.example.cristianverdes.bakingapp.R;
+import com.example.cristianverdes.bakingapp.data.local.AppDatabase;
+import com.example.cristianverdes.bakingapp.data.model.Ingredient;
 
-class IngredientsRemoteViewFactor implements RemoteViewsService.RemoteViewsFactory {
+import java.util.ArrayList;
+import java.util.List;
+
+class IngredientsRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory {
     Context context;
+    private List<Ingredient> ingredients = new ArrayList<>();
 
-    public IngredientsRemoteViewFactor(Context context) {
+    public IngredientsRemoteViewFactory(Context context) {
         this.context = context;
     }
 
@@ -22,7 +27,7 @@ class IngredientsRemoteViewFactor implements RemoteViewsService.RemoteViewsFacto
 
     @Override
     public void onDataSetChanged() {
-
+        ingredients = AppDatabase.getAppDatabase(context).ingredientDao().getIngredientsByRecipeId(1);
     }
 
     @Override
@@ -32,12 +37,24 @@ class IngredientsRemoteViewFactor implements RemoteViewsService.RemoteViewsFacto
 
     @Override
     public int getCount() {
-        return 0;
+        return ingredients.size();
     }
 
     @Override
     public RemoteViews getViewAt(int position) {
-        return null;
+        // Get Ingredient from list
+        Ingredient ingredient = ingredients.get(position);
+
+        // Get Ingredient title
+        String ingredientTitle = ingredient.getIngredient();
+
+        // Get Widget layout
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_ingredients);
+
+        // Set Widget title
+        views.setTextViewText(R.id.appwidget_recipe_title, ingredientTitle);
+
+        return views;
     }
 
     @Override

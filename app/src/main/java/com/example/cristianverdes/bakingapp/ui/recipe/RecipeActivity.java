@@ -35,6 +35,7 @@ public class RecipeActivity extends AppCompatActivity{
         setCustomActionBar();
 
         if (findViewById(R.id.fl_steps_container) != null) {
+            // TABLET layout
             twoPane = true;
 
             RecipeFragment recipeFragment = new RecipeFragment();
@@ -44,6 +45,7 @@ public class RecipeActivity extends AppCompatActivity{
             int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
             bundle.putInt(RECIPE_ID, recipeId);
             bundle.putBoolean(TWO_PANE, twoPane);
+            bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
             recipeFragment.setArguments(bundle);
 
             // Use Fragment manager and transition to add the fragment to the screen
@@ -55,6 +57,7 @@ public class RecipeActivity extends AppCompatActivity{
                     .commit();
 
         } else {
+            // PHONE layout
             twoPane = false;
 
             RecipeFragment recipeFragment = new RecipeFragment();
@@ -63,6 +66,7 @@ public class RecipeActivity extends AppCompatActivity{
             Bundle bundle = new Bundle();
             int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
             bundle.putInt(RECIPE_ID, recipeId);
+            bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
             recipeFragment.setArguments(bundle);
 
             // Use Fragment manager and transition to add the fragment to the screen

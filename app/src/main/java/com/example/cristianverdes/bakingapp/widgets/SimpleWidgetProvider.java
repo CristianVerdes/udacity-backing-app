@@ -17,9 +17,8 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-
         // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.simple_widget_provider);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_simple);
 
         // Launch app intent
         Intent intent = new Intent(context, RecipesActivity.class);

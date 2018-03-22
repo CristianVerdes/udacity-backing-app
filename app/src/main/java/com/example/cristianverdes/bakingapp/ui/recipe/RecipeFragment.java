@@ -40,6 +40,7 @@ import io.reactivex.observers.DisposableObserver;
 
 public class RecipeFragment extends Fragment{
     private static final String RECIPE_ID = "recipeId";
+    private static final String RECIPE_NAME = "recipeName";
     private static final String STEP_ID = "stepId";
 
     private static final String TAG = RecipeFragment.class.getSimpleName();
@@ -79,7 +80,7 @@ public class RecipeFragment extends Fragment{
         // Here we subscribe to the Observable stream from ViewModel
         subscribeToDataStreams();
 
-        // TwoPane
+        // TABLET layout
         if (getArguments().getBoolean("twoPane")) {
             // Set fragment at fragment startup
             createStepFragment(recipeId, 0);
@@ -96,6 +97,7 @@ public class RecipeFragment extends Fragment{
 
     }
 
+    // Used only in Tablet Layout
     private void createStepFragment(int recipeId, int stepId) {
         // Create fragment
         StepFragment stepFragment = new StepFragment();
@@ -121,7 +123,7 @@ public class RecipeFragment extends Fragment{
         ingredients.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IngredientsActivity.start(rootView.getContext(), recipeId);
+                IngredientsActivity.start(rootView.getContext(), recipeId, getArguments().getString(RECIPE_NAME));
             }
         });
     }

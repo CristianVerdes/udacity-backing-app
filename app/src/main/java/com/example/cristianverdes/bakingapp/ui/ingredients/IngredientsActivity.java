@@ -29,14 +29,16 @@ import java.util.List;
 public class IngredientsActivity extends AppCompatActivity {
     private static final String TAG = IngredientsActivity.class.getSimpleName();
     private static final String RECIPE_ID = "recipeId";
+    private static final String RECIPE_NAME = "recipeName";
     private int recipeId;
     private RecyclerView ingredientsList;
     private RecipesViewModel recipesViewModel;
     private IngredientsAdapter ingredientsAdapter;
 
-    public static void start(Context context, int recipeId) {
+    public static void start(Context context, int recipeId, String recipeName) {
         Intent starter = new Intent(context, IngredientsActivity.class);
         starter.putExtra(RECIPE_ID, recipeId);
+        starter.putExtra(RECIPE_NAME, recipeName);
         context.startActivity(starter);
     }
 
@@ -60,6 +62,9 @@ public class IngredientsActivity extends AppCompatActivity {
 
         // Subscribe to data steam
         subscribeToDataStream();
+
+        // Change ActionBarTitle
+        setCustomActionBar();
     }
 
     private void createViewModel() {
@@ -91,5 +96,9 @@ public class IngredientsActivity extends AppCompatActivity {
         ProgressBar progressBar = findViewById(R.id.pb_ingredients);
         progressBar.setVisibility(View.INVISIBLE);
         ingredientsList.setVisibility(View.VISIBLE);
+    }
+
+    private void setCustomActionBar() {
+        getSupportActionBar().setTitle(getIntent().getStringExtra(RECIPE_NAME));
     }
 }

@@ -3,6 +3,7 @@ package com.example.cristianverdes.bakingapp.widgets;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.example.cristianverdes.bakingapp.R;
@@ -17,12 +18,26 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
 
         CharSequence widgetText = context.getString(R.string.appwidget_text);
         // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredients_widget_provider);
-        views.setTextViewText(R.id.appwidget_text, widgetText);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_ingredients);
+        views.setTextViewText(R.id.appwidget_recipe_title, widgetText);
 
+        RemoteViews remoteViews;
+
+        remoteViews = getIngredientsListRemoteView(context);
         // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+        appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
     }
+
+    private static RemoteViews getIngredientsListRemoteView(Context context) {
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_ingredients);
+
+        // Set IngredientsWidgetService intent to act as the adapter for the ListView
+        Intent intent = new Intent(context, IngredientsWidgetService.class);
+        views.setRemoteAdapter(R.id.widget_list_view, intent);
+
+        return views;
+    }
+
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {

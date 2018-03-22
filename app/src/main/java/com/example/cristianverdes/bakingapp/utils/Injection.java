@@ -2,7 +2,7 @@ package com.example.cristianverdes.bakingapp.utils;
 
 import android.content.Context;
 
-import com.example.cristianverdes.bakingapp.data.repositories.RecipesRepository;
+import com.example.cristianverdes.bakingapp.data.repository.RecipesRepository;
 
 import static com.example.cristianverdes.bakingapp.utils.Preconditions.checkNotNull;
 

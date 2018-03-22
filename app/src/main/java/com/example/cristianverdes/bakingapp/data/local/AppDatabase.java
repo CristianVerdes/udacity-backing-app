@@ -11,18 +11,20 @@ import android.content.Context;
 import com.example.cristianverdes.bakingapp.data.model.Ingredient;
 import com.example.cristianverdes.bakingapp.data.model.Recipe;
 import com.example.cristianverdes.bakingapp.data.model.Step;
+import com.example.cristianverdes.bakingapp.data.model.Timer;
 
 /**
  * Created by cristian.verdes on 20.03.2018.
  */
 
-@Database(entities = {Recipe.class, Step.class, Ingredient.class}, version = 1)
+@Database(entities = {Recipe.class, Step.class, Ingredient.class, Timer.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase databaseInstance;
 
     public abstract RecipeDao recipeDao();
     public abstract StepDao stepDao();
     public abstract IngredientDao ingredientDao();
+    public abstract TimerDao timerDao();
 
     public static AppDatabase getAppDatabase(Context context) {
         if (databaseInstance == null) {
