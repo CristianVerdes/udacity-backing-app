@@ -44,8 +44,6 @@ public class RecipesRepository {
     }
 
     // Constructors
-    private RecipesRepository(){}
-
     private RecipesRepository(Context context) {
         this.appDatabase = AppDatabase.getAppDatabase(context);
     }

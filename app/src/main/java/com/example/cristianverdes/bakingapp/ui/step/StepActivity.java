@@ -8,12 +8,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.cristianverdes.bakingapp.R;
+import com.example.cristianverdes.bakingapp.ui.BaseActivity;
 
 /**
  * Created by cristian.verdes on 16.03.2018.
  */
 
-public class StepActivity extends AppCompatActivity {
+public class StepActivity extends BaseActivity {
     private static final String RECIPE_ID = "recipeId";
     private static final String STEP_ID = "stepId";
     private static final String STEPS_SIZE = "stepsSize";
@@ -34,29 +35,32 @@ public class StepActivity extends AppCompatActivity {
         setContentView(R.layout.activity_step);
 
         setCustomActionBar();
+        // We check savedInstanceState because we don't want to create a new fragment when the screen rotates
+        if (savedInstanceState == null) {
+            // Get data from previous Activity
+            int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
+            int stepId = getIntent().getIntExtra(STEP_ID, 0);
+            int stepsSize = getIntent().getIntExtra(STEPS_SIZE, 0);
 
-        // Get data from previous Activity
-        int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
-        int stepId = getIntent().getIntExtra(STEP_ID, 0);
-        int stepsSize = getIntent().getIntExtra(STEPS_SIZE, 0);
+            // Create Fragment instance
+            StepFragment stepFragment = new StepFragment();
 
-        // Create Fragment instance
-        StepFragment stepFragment = new StepFragment();
+            // Send data to fragment
+            Bundle bundle = new Bundle();
+            bundle.putInt(RECIPE_ID, recipeId);
+            bundle.putInt(STEP_ID, stepId);
 
-        // Send data to fragment
-        Bundle bundle = new Bundle();
-        bundle.putInt(RECIPE_ID, recipeId);
-        bundle.putInt(STEP_ID, stepId);
-        bundle.putInt(STEPS_SIZE, stepsSize);
-        stepFragment.setArguments(bundle);
+            bundle.putInt(STEPS_SIZE, stepsSize);
+            stepFragment.setArguments(bundle);
 
-        // Get Fragment Manager
-        FragmentManager fragmentManager = getSupportFragmentManager();
+            // Get Fragment Manager
+            FragmentManager fragmentManager = getSupportFragmentManager();
 
-        // Begin transition
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, stepFragment)
-                .commit();
+            // Begin transition
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, stepFragment)
+                    .commit();
+        }
     }
 
     private void setCustomActionBar() {

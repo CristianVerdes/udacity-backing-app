@@ -5,11 +5,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.cristianverdes.bakingapp.R;
 import com.example.cristianverdes.bakingapp.data.model.Recipe;
 import com.example.cristianverdes.bakingapp.ui.recipe.RecipeActivity;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +58,19 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.RecipesV
 
         public void bind(final Recipe recipe) {
             // We'll use the itemView from the super class
+            // TITLE
             TextView recipeTitle = itemView.findViewById(R.id.tv_recipe_title);
             recipeTitle.setText(recipe.getName());
+
+            // IMAGE
+            ImageView recipeImage = itemView.findViewById(R.id.iv_recipe_image);
+            // Verify if there is an image Url in the json
+            if (recipe.getImage() != null && !recipe.getImage().equals("")) {
+                // Load image
+                Picasso.get().load(recipe.getImage()).into(recipeImage);
+            }
+
+            // CLICK LISTENER
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

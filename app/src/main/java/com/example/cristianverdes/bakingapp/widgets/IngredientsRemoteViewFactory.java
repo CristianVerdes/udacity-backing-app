@@ -1,7 +1,6 @@
 package com.example.cristianverdes.bakingapp.widgets;
 
 import android.content.Context;
-import android.content.Intent;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -13,11 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 class IngredientsRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory {
+    private int recipeId;
     Context context;
     private List<Ingredient> ingredients = new ArrayList<>();
 
-    public IngredientsRemoteViewFactory(Context context) {
+    public IngredientsRemoteViewFactory(Context context, int recipeId) {
         this.context = context;
+        this.recipeId = recipeId;
     }
 
     @Override
@@ -27,12 +28,12 @@ class IngredientsRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
 
     @Override
     public void onDataSetChanged() {
-        ingredients = AppDatabase.getAppDatabase(context).ingredientDao().getIngredientsByRecipeId(1);
+        ingredients = AppDatabase.getAppDatabase(context).ingredientDao().getIngredientsByRecipeId(recipeId);
     }
 
     @Override
     public void onDestroy() {
-
+        AppDatabase.destroyInstance();
     }
 
     @Override
@@ -49,10 +50,10 @@ class IngredientsRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
         String ingredientTitle = ingredient.getIngredient();
 
         // Get Widget layout
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_ingredients);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_list_item);
 
         // Set Widget title
-        views.setTextViewText(R.id.appwidget_recipe_title, ingredientTitle);
+        views.setTextViewText(R.id.tv_recipe_title, ingredientTitle);
 
         return views;
     }
@@ -64,16 +65,16 @@ class IngredientsRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
 
     @Override
     public int getViewTypeCount() {
-        return 0;
+        return 1;
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
 }

@@ -1,13 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#09C"
+    android:background="@color/colorPrimaryDark"
     android:padding="@dimen/widget_margin">
 
     <ListView
         android:id="@+id/widget_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:background="@color/colorPrimary"
         android:layout_below="@+id/appwidget_recipe_title"
         android:layout_gravity="center"/>
 
@@ -15,8 +17,8 @@
         android:id="@+id/appwidget_recipe_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:background="#09C"
+        android:padding="8dp"
+        android:background="@color/colorPrimaryDark"
         android:gravity="center"
         android:contentDescription="@string/appwidget_text"
         android:text="@string/appwidget_text"

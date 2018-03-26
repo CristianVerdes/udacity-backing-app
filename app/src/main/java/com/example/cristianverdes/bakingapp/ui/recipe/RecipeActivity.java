@@ -33,49 +33,51 @@ public class RecipeActivity extends AppCompatActivity{
         setContentView(R.layout.activity_recipe);
 
         setCustomActionBar();
+        // We check savedInstanceState because we don't want to create a new fragment when the screen rotates
+        if (savedInstanceState == null) {
+            if (findViewById(R.id.fl_steps_container) != null) {
+                // TABLET layout
+                twoPane = true;
 
-        if (findViewById(R.id.fl_steps_container) != null) {
-            // TABLET layout
-            twoPane = true;
+                RecipeFragment recipeFragment = new RecipeFragment();
 
-            RecipeFragment recipeFragment = new RecipeFragment();
+                // Send ID to fragment
+                Bundle bundle = new Bundle();
+                int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
+                bundle.putInt(RECIPE_ID, recipeId);
+                bundle.putBoolean(TWO_PANE, twoPane);
+                bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
+                recipeFragment.setArguments(bundle);
 
-            // Send ID to fragment
-            Bundle bundle = new Bundle();
-            int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
-            bundle.putInt(RECIPE_ID, recipeId);
-            bundle.putBoolean(TWO_PANE, twoPane);
-            bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
-            recipeFragment.setArguments(bundle);
+                // Use Fragment manager and transition to add the fragment to the screen
+                FragmentManager fragmentManager = getSupportFragmentManager();
 
-            // Use Fragment manager and transition to add the fragment to the screen
-            FragmentManager fragmentManager = getSupportFragmentManager();
+                // Begin transition
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fl_steps_container, recipeFragment)
+                        .commit();
 
-            // Begin transition
-            fragmentManager.beginTransaction()
-                    .replace(R.id.fl_steps_container, recipeFragment)
-                    .commit();
+            } else {
+                // PHONE layout
+                twoPane = false;
 
-        } else {
-            // PHONE layout
-            twoPane = false;
+                RecipeFragment recipeFragment = new RecipeFragment();
 
-            RecipeFragment recipeFragment = new RecipeFragment();
+                // Send ID to fragment
+                Bundle bundle = new Bundle();
+                int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
+                bundle.putInt(RECIPE_ID, recipeId);
+                bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
+                recipeFragment.setArguments(bundle);
 
-            // Send ID to fragment
-            Bundle bundle = new Bundle();
-            int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
-            bundle.putInt(RECIPE_ID, recipeId);
-            bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
-            recipeFragment.setArguments(bundle);
+                // Use Fragment manager and transition to add the fragment to the screen
+                FragmentManager fragmentManager = getSupportFragmentManager();
 
-            // Use Fragment manager and transition to add the fragment to the screen
-            FragmentManager fragmentManager = getSupportFragmentManager();
-
-            // Begin transition
-            fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, recipeFragment)
-                    .commit();
+                // Begin transition
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, recipeFragment)
+                        .commit();
+            }
         }
     }
 

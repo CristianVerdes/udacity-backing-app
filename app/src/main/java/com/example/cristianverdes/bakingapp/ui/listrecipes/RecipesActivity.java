@@ -24,10 +24,15 @@ import butterknife.ButterKnife;
 
 public class RecipesActivity extends AppCompatActivity {
     private static final String TAG = RecipeActivity.class.getSimpleName();
+    private static final String KEY_SCROLL_INDEX = "key_scroll_index";
 
     private RecipesViewModel recipesViewModel;
     private RecipesAdapter recipesAdapter;
     private RecyclerView recipesList;
+    private GridLayoutManager gridLayoutManager;
+    private LinearLayoutManager linearLayoutManager;
+
+    private int listScrollIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +43,13 @@ public class RecipesActivity extends AppCompatActivity {
         if (findViewById(R.id.rv_recipes_grid) != null) {
             // Tablet
             recipesList = findViewById(R.id.rv_recipes_grid);
-            recipesList.setLayoutManager(new GridLayoutManager(this, 3));
+            gridLayoutManager = new GridLayoutManager(this, 3);
+            recipesList.setLayoutManager(gridLayoutManager);
         } else {
             // Phone
             recipesList = findViewById(R.id.rv_recipes);
-            recipesList.setLayoutManager(new LinearLayoutManager(this));
+            linearLayoutManager = new LinearLayoutManager(this);
+            recipesList.setLayoutManager(linearLayoutManager);
         }
 
         setAdapterToRecyclerView();
@@ -50,6 +57,31 @@ public class RecipesActivity extends AppCompatActivity {
         instantiateViewModel();
 
         subscribeToDataStream();
+    }
+
+    // Save and restore state
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        int scrollIndex;
+
+        if (findViewById(R.id.rv_recipes_grid) != null) {
+            // Tablet
+            scrollIndex = gridLayoutManager.findFirstCompletelyVisibleItemPosition();
+        } else {
+            // Phone
+            scrollIndex = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+        }
+
+        outState.putInt(KEY_SCROLL_INDEX, scrollIndex);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            listScrollIndex = savedInstanceState.getInt(KEY_SCROLL_INDEX);
+        }
     }
 
     private void instantiateViewModel() {
@@ -64,6 +96,13 @@ public class RecipesActivity extends AppCompatActivity {
                     // Hide Progressbar and show data
                     hideProgressBar();
                     recipesAdapter.setRecipes(recipes);
+                    if (findViewById(R.id.rv_recipes_grid) != null && listScrollIndex != -1) {
+                        // Tablet
+                        gridLayoutManager.scrollToPositionWithOffset(listScrollIndex, 0);
+                    } else {
+                        // Phone
+                        linearLayoutManager.scrollToPositionWithOffset(listScrollIndex, 0);
+                    }
                 } else {
                     Log.e(TAG, "Error: No recipes");
                 }

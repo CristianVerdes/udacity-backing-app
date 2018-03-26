@@ -15,29 +15,9 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-
-        CharSequence widgetText = context.getString(R.string.appwidget_text);
-        // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_ingredients);
-        views.setTextViewText(R.id.appwidget_recipe_title, widgetText);
-
-        RemoteViews remoteViews;
-
-        remoteViews = getIngredientsListRemoteView(context);
-        // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
+        // The provider does nothing
+        // Until the user selects the wanted Recipe from the Configure Activity
     }
-
-    private static RemoteViews getIngredientsListRemoteView(Context context) {
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_ingredients);
-
-        // Set IngredientsWidgetService intent to act as the adapter for the ListView
-        Intent intent = new Intent(context, IngredientsWidgetService.class);
-        views.setRemoteAdapter(R.id.widget_list_view, intent);
-
-        return views;
-    }
-
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {

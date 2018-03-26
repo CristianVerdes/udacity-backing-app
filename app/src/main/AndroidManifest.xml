@@ -19,10 +19,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.recipe.RecipeActivity" />
-        <activity android:name=".ui.step.StepActivity" />
-        <activity android:name=".ui.ingredients.IngredientsActivity" />
+        <activity android:name=".ui.recipe.RecipeActivity"
+            android:parentActivityName=".ui.listrecipes.RecipesActivity"/>
+        <activity android:name=".ui.step.StepActivity"
+            android:parentActivityName=".ui.recipe.RecipeActivity"/>
+        <activity android:name=".ui.ingredients.IngredientsActivity"
+            android:parentActivityName=".ui.recipe.RecipeActivity"/>
 
+        <!-- Widgets -->
         <receiver android:name=".widgets.IngredientsWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -42,11 +46,12 @@
                 android:resource="@xml/simple_widget_provider_info" />
         </receiver>
 
-        <activity android:name=".widgets.IngredientsWidgetConfigure">
+        <activity android:name=".widgets.IngredientsWidgetConfAct">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+
         <service android:name=".widgets.IngredientsWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS"/>
 

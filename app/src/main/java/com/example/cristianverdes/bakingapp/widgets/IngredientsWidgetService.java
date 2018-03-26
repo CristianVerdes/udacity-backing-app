@@ -11,6 +11,6 @@ public class IngredientsWidgetService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return new IngredientsRemoteViewFactory(this.getApplicationContext());
+        return new IngredientsRemoteViewFactory(this.getApplicationContext(), Integer.valueOf(intent.getData().getSchemeSpecificPart()));
     }
 }

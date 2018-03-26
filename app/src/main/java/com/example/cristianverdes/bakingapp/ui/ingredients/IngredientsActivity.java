@@ -11,12 +11,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 
 import com.example.cristianverdes.bakingapp.R;
 import com.example.cristianverdes.bakingapp.data.model.Ingredient;
 import com.example.cristianverdes.bakingapp.data.model.Recipe;
 import com.example.cristianverdes.bakingapp.data.model.Step;
+import com.example.cristianverdes.bakingapp.ui.BaseActivity;
 import com.example.cristianverdes.bakingapp.ui.listrecipes.RecipesViewModel;
 import com.example.cristianverdes.bakingapp.utils.Injection;
 
@@ -26,14 +28,19 @@ import java.util.List;
  * Created by cristian.verdes on 16.03.2018.
  */
 
-public class IngredientsActivity extends AppCompatActivity {
+public class IngredientsActivity extends BaseActivity {
     private static final String TAG = IngredientsActivity.class.getSimpleName();
     private static final String RECIPE_ID = "recipeId";
     private static final String RECIPE_NAME = "recipeName";
+    private static final String KEY_SCROLL_INDEX = "key_scroll_index";
+
     private int recipeId;
     private RecyclerView ingredientsList;
     private RecipesViewModel recipesViewModel;
     private IngredientsAdapter ingredientsAdapter;
+    private LinearLayoutManager linearLayoutManager;
+
+    private int listScrollIndex = -1;
 
     public static void start(Context context, int recipeId, String recipeName) {
         Intent starter = new Intent(context, IngredientsActivity.class);
@@ -52,7 +59,7 @@ public class IngredientsActivity extends AppCompatActivity {
 
         ingredientsList = findViewById(R.id.rv_ingredients);
         ingredientsAdapter = new IngredientsAdapter();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(this);
 
         ingredientsList.setLayoutManager(linearLayoutManager);
         ingredientsList.setAdapter(ingredientsAdapter);
@@ -65,6 +72,23 @@ public class IngredientsActivity extends AppCompatActivity {
 
         // Change ActionBarTitle
         setCustomActionBar();
+    }
+
+    // Save and restore state
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        int scrollIndex = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+        outState.putInt(KEY_SCROLL_INDEX, scrollIndex);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            listScrollIndex = savedInstanceState.getInt(KEY_SCROLL_INDEX);
+        }
     }
 
     private void createViewModel() {
@@ -81,6 +105,10 @@ public class IngredientsActivity extends AppCompatActivity {
                         // Hide progressbar and show data
                         hideProgressbar();
                         ingredientsAdapter.setIngredients(ingredients);
+
+                        if (listScrollIndex != -1) {
+                            linearLayoutManager.scrollToPositionWithOffset(listScrollIndex, 0);
+                        }
                     } else {
                         Log.e(TAG, "Error: No ingredients");
                     }

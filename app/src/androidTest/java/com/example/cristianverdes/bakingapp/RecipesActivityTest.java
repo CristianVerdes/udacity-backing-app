@@ -10,6 +10,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
 
+import com.example.cristianverdes.bakingapp.data.model.Recipe;
 import com.example.cristianverdes.bakingapp.ui.listrecipes.RecipesActivity;
 import com.example.cristianverdes.bakingapp.ui.recipe.RecipeActivity;
 
@@ -32,6 +33,7 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.toPack
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anything;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
 

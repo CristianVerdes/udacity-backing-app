@@ -2,7 +2,9 @@ package com.example.cristianverdes.bakingapp.ui.recipe;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -42,15 +44,20 @@ public class RecipeFragment extends Fragment{
     private static final String RECIPE_ID = "recipeId";
     private static final String RECIPE_NAME = "recipeName";
     private static final String STEP_ID = "stepId";
+    private static final String KEY_SCROLL_INDEX = "key_scroll_index";
 
     private static final String TAG = RecipeFragment.class.getSimpleName();
-    private int recipeId;
+    private static int recipeId;
     private View rootView;
 
     private RecyclerView stepsList;
     private RecipesViewModel recipesViewModel;
     private StepsAdapter stepsAdapter;
     private TextView ingredients;
+
+    private LinearLayoutManager linearLayoutManager;
+
+    private int listScrollIndex = -1;
 
     @Nullable
     @Override
@@ -68,7 +75,7 @@ public class RecipeFragment extends Fragment{
         stepsAdapter.setTwoPane(getArguments().getBoolean("twoPane"));
 
         stepsList.setAdapter(stepsAdapter);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(container.getContext());
+        linearLayoutManager = new LinearLayoutManager(container.getContext());
         stepsList.setLayoutManager(linearLayoutManager);
 
         // Set ingredients listener
@@ -97,6 +104,23 @@ public class RecipeFragment extends Fragment{
 
     }
 
+    // Save and restore state
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        int scrollIndex = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+        outState.putInt(KEY_SCROLL_INDEX, scrollIndex);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            listScrollIndex = savedInstanceState.getInt(KEY_SCROLL_INDEX);
+        }
+    }
+
     // Used only in Tablet Layout
     private void createStepFragment(int recipeId, int stepId) {
         // Create fragment
@@ -123,7 +147,12 @@ public class RecipeFragment extends Fragment{
         ingredients.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IngredientsActivity.start(rootView.getContext(), recipeId, getArguments().getString(RECIPE_NAME));
+                // IngredientsActivity.start(rootView.getContext(), recipeId, getArguments().getString(RECIPE_NAME));
+
+                Intent starter = new Intent(rootView.getContext(), IngredientsActivity.class);
+                starter.putExtra(RECIPE_ID, recipeId);
+                starter.putExtra(RECIPE_NAME, RECIPE_NAME);
+                startActivityForResult(starter, 0);
             }
         });
     }
@@ -139,6 +168,10 @@ public class RecipeFragment extends Fragment{
                         hideProgressbar();
                         stepsAdapter.setRecipeName(recipes.get(recipeId - 1).getName());
                         stepsAdapter.setSteps(steps);
+                        // Scroll list if needed
+                        if (listScrollIndex != -1) {
+                            linearLayoutManager.scrollToPositionWithOffset(listScrollIndex, 0);
+                        }
                     } else {
                         Log.e(TAG, "Error: No Steps");
                     }
