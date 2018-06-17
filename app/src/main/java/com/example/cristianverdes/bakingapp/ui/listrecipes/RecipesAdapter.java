@@ -2,6 +2,7 @@ package com.example.cristianverdes.bakingapp.ui.listrecipes;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,7 +66,7 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.RecipesV
             // IMAGE
             ImageView recipeImage = itemView.findViewById(R.id.iv_recipe_image);
             // Verify if there is an image Url in the json
-            if (recipe.getImage() != null && !recipe.getImage().equals("")) {
+            if (recipe.getImage() != null && !TextUtils.isEmpty(recipe.getImage())) {
                 // Load image
                 Picasso.get().load(recipe.getImage()).into(recipeImage);
             }

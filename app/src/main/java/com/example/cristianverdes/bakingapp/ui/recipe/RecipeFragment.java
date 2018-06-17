@@ -1,7 +1,6 @@
 package com.example.cristianverdes.bakingapp.ui.recipe;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,15 +25,7 @@ import com.example.cristianverdes.bakingapp.ui.listrecipes.RecipesViewModel;
 import com.example.cristianverdes.bakingapp.ui.step.StepFragment;
 import com.example.cristianverdes.bakingapp.utils.Injection;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
 import java.util.List;
-import java.util.Observable;
-
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.observers.DisposableObserver;
 
 /**
  * Created by cristian.verdes on 15.03.2018.
@@ -45,6 +36,7 @@ public class RecipeFragment extends Fragment{
     private static final String RECIPE_NAME = "recipeName";
     private static final String STEP_ID = "stepId";
     private static final String KEY_SCROLL_INDEX = "key_scroll_index";
+    private static final String IS_TABLET = "isTablet";
 
     private static final String TAG = RecipeFragment.class.getSimpleName();
     private static int recipeId;
@@ -58,12 +50,13 @@ public class RecipeFragment extends Fragment{
     private LinearLayoutManager linearLayoutManager;
 
     private int listScrollIndex = -1;
+    private int stepId = 0;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Get Extra
-        recipeId = getArguments().getInt("recipeId");
+        recipeId = getArguments().getInt(RECIPE_ID, 0);
 
         // Inflate View
         rootView = inflater.inflate(R.layout.fragment_recipe, container, false);
@@ -72,7 +65,7 @@ public class RecipeFragment extends Fragment{
         stepsList = rootView.findViewById(R.id.rv_steps);
         stepsAdapter = new StepsAdapter(recipeId);
 
-        stepsAdapter.setTwoPane(getArguments().getBoolean("twoPane"));
+        stepsAdapter.setIsTablet(getArguments().getBoolean(IS_TABLET));
 
         stepsList.setAdapter(stepsAdapter);
         linearLayoutManager = new LinearLayoutManager(container.getContext());
@@ -88,9 +81,7 @@ public class RecipeFragment extends Fragment{
         subscribeToDataStreams();
 
         // TABLET layout
-        if (getArguments().getBoolean("twoPane")) {
-            // Set fragment at fragment startup
-            createStepFragment(recipeId, 0);
+        if (getArguments().getBoolean("isTablet")) {
             stepsAdapter.getChangeFragmentObservable().observe(this, new Observer<ChangeStepFragmentData>() {
                 @Override
                 public void onChanged(@Nullable ChangeStepFragmentData changeStepFragmentData) {
@@ -111,6 +102,7 @@ public class RecipeFragment extends Fragment{
 
         int scrollIndex = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
         outState.putInt(KEY_SCROLL_INDEX, scrollIndex);
+        outState.putInt(STEP_ID, stepId);
     }
 
     @Override
@@ -118,11 +110,14 @@ public class RecipeFragment extends Fragment{
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             listScrollIndex = savedInstanceState.getInt(KEY_SCROLL_INDEX);
+            stepId = savedInstanceState.getInt(STEP_ID);
         }
     }
 
     // Used only in Tablet Layout
     private void createStepFragment(int recipeId, int stepId) {
+        this.stepId = stepId;
+
         // Create fragment
         StepFragment stepFragment = new StepFragment();
 
@@ -130,7 +125,7 @@ public class RecipeFragment extends Fragment{
         Bundle bundle = new Bundle();
         bundle.putInt(RECIPE_ID, recipeId);
         bundle.putInt(STEP_ID, stepId);
-        bundle.putBoolean("twoPane", true);
+        bundle.putBoolean(IS_TABLET, true);
         stepFragment.setArguments(bundle);
 
         // Get Fragment Manager
@@ -147,8 +142,6 @@ public class RecipeFragment extends Fragment{
         ingredients.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // IngredientsActivity.start(rootView.getContext(), recipeId, getArguments().getString(RECIPE_NAME));
-
                 Intent starter = new Intent(rootView.getContext(), IngredientsActivity.class);
                 starter.putExtra(RECIPE_ID, recipeId);
                 starter.putExtra(RECIPE_NAME, RECIPE_NAME);

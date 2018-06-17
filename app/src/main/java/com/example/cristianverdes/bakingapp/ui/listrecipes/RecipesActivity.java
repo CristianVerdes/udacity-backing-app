@@ -33,14 +33,16 @@ public class RecipesActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
 
     private int listScrollIndex = -1;
+    private boolean isTablet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipes);
 
+        isTablet = getResources().getBoolean(R.bool.is_tablet);
         // Set Layout Manager
-        if (findViewById(R.id.rv_recipes_grid) != null) {
+        if (isTablet) {
             // Tablet
             recipesList = findViewById(R.id.rv_recipes_grid);
             gridLayoutManager = new GridLayoutManager(this, 3);
@@ -65,7 +67,7 @@ public class RecipesActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         int scrollIndex;
 
-        if (findViewById(R.id.rv_recipes_grid) != null) {
+        if (isTablet) {
             // Tablet
             scrollIndex = gridLayoutManager.findFirstCompletelyVisibleItemPosition();
         } else {
@@ -96,12 +98,14 @@ public class RecipesActivity extends AppCompatActivity {
                     // Hide Progressbar and show data
                     hideProgressBar();
                     recipesAdapter.setRecipes(recipes);
-                    if (findViewById(R.id.rv_recipes_grid) != null && listScrollIndex != -1) {
-                        // Tablet
-                        gridLayoutManager.scrollToPositionWithOffset(listScrollIndex, 0);
-                    } else {
-                        // Phone
-                        linearLayoutManager.scrollToPositionWithOffset(listScrollIndex, 0);
+                    if (listScrollIndex != -1) {
+                        if (isTablet) {
+                            // Tablet
+                            gridLayoutManager.scrollToPositionWithOffset(listScrollIndex, 0);
+                        } else {
+                            // Phone
+                            linearLayoutManager.scrollToPositionWithOffset(listScrollIndex, 0);
+                        }
                     }
                 } else {
                     Log.e(TAG, "Error: No recipes");

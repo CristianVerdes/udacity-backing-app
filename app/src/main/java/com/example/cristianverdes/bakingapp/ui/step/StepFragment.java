@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,8 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,12 +47,15 @@ import java.util.List;
  */
 
 public class StepFragment extends Fragment {
+    private static final String TAG = StepFragment.class.getSimpleName();
+
     private static final String RECIPE_ID = "recipeId";
     private static final String STEP_ID = "stepId";
     private static final String STEPS_SIZE = "stepsSize";
     private static final String VIDEO_POSITION = "videoPosition";
+    private static final String VIDEO_PLAYING = "videoPlaying";
+    private static final String IS_TABLET = "isTablet";
 
-    private static final String TAG = StepFragment.class.getSimpleName();
     private RecipesViewModel recipesViewModel;
     private int recipeId;
     private int stepId;
@@ -61,6 +67,7 @@ public class StepFragment extends Fragment {
     // ExoPlayer
     private SimpleExoPlayer player;
     private long videoPosition = -1;
+    private boolean videoRestorePlay = false;
 
     // Views
     private SimpleExoPlayerView playerView;
@@ -72,28 +79,23 @@ public class StepFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if ((Util.SDK_INT <= 23 || player == null)) {
+        if (player == null) {
             initializePlayer();
-        }
-        if (videoPosition != -1) {
-            player.seekTo(videoPosition);
+        } else {
+            player.setPlayWhenReady(true);
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (Util.SDK_INT <= 23) {
-            releasePlayer();
-        }
+        player.setPlayWhenReady(false);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (Util.SDK_INT <= 23) {
-            releasePlayer();
-        }
+        releasePlayer();
     }
 
     private void releasePlayer() {
@@ -109,6 +111,7 @@ public class StepFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putLong(VIDEO_POSITION, player.getCurrentPosition());
         outState.putInt(STEP_ID, stepId);
+        outState.putBoolean(VIDEO_PLAYING, player.getPlayWhenReady());
     }
 
     @Override
@@ -116,6 +119,7 @@ public class StepFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             videoPosition = savedInstanceState.getLong(VIDEO_POSITION);
+            videoRestorePlay = savedInstanceState.getBoolean(VIDEO_PLAYING);
         }
     }
 
@@ -137,18 +141,18 @@ public class StepFragment extends Fragment {
         noVideoTv = rootView.findViewById(R.id.tv_no_video);
 
         // Get data from Bundle
-        recipeId = getArguments().getInt("recipeId");
+        recipeId = getArguments().getInt(RECIPE_ID);
         if (savedInstanceState != null) {
             stepId = savedInstanceState.getInt(STEP_ID);
         } else {
-            stepId = getArguments().getInt("stepId");
+            stepId = getArguments().getInt(STEP_ID);
         }
-        stepsSize = getArguments().getInt("stepsSize");
+        stepsSize = getArguments().getInt(STEPS_SIZE);
 
         // Set previous / next buttons listeners
         setPreviousNextButtonsListeners();
 
-        // Hide Previous / Next Buttons if needed
+        // Hide Previous / Next Buttons if we reach one of the ends of the Steps list
         if (stepId == 0) {
             previous.setVisibility(View.INVISIBLE);
         }
@@ -167,16 +171,13 @@ public class StepFragment extends Fragment {
 
 
     private void setPreviousNextButtonsListeners() {
-        if (getArguments().getBoolean("twoPane")) {
+        if (getArguments().getBoolean(IS_TABLET)) {
             previous.setVisibility(View.INVISIBLE);
             next.setVisibility(View.INVISIBLE);
         } else {
             previous.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Release player
-                    releasePlayer();
-
                     StepFragment stepFragment = new StepFragment();
                     // Create Bundle
                     int stepIdArg = stepId - 1;
@@ -197,9 +198,6 @@ public class StepFragment extends Fragment {
             next.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Release player
-                    releasePlayer();
-
                     StepFragment stepFragment = new StepFragment();
                     // Create Bundle
                     int stepIdArg = stepId + 1;
@@ -235,22 +233,23 @@ public class StepFragment extends Fragment {
                         Step step = steps.get(stepId);
                         instructions.setText(step.getDescription());
 
-                        // Set thumbnail
-                        if (step.getThumbnailURL() != null && !step.getThumbnailURL().equals("")) {
-                            try {
-                                URL url = new URL(step.getThumbnailURL());
-                                playerView.setDefaultArtwork(BitmapFactory.decodeStream(url.openConnection().getInputStream()));
-                            } catch (MalformedURLException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
                         // Video data
-                        if (!step.getVideoURL().equals("")) {
+                        if (!TextUtils.isEmpty(step.getVideoURL())) {
+                            // Hide "NO VIDEO" Views
                             noVideoIv.setVisibility(View.INVISIBLE);
                             noVideoTv.setVisibility(View.INVISIBLE);
+
+                            // Set thumbnail if there is a video
+                            if (step.getThumbnailURL() != null && !TextUtils.isEmpty(step.getThumbnailURL())) {
+                                try {
+                                    URL url = new URL(step.getThumbnailURL());
+                                    playerView.setDefaultArtwork(BitmapFactory.decodeStream(url.openConnection().getInputStream()));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    Log.e(TAG, "ThumbnailURL error: " + e.getMessage());
+                                }
+                            }
+
                             Uri uri = Uri.parse(step.getVideoURL());
                             MediaSource mediaSource = buildMediaSource(uri);
                             player.prepare(mediaSource, true, false);
@@ -265,6 +264,11 @@ public class StepFragment extends Fragment {
                     }
                 } else {
                     Log.e(TAG, "Error: No recipes");
+                }
+
+                // Restore video position
+                if (videoPosition != -1) {
+                    player.seekTo(videoPosition);
                 }
             }
         });
@@ -290,7 +294,9 @@ public class StepFragment extends Fragment {
                 new DefaultTrackSelector(), new DefaultLoadControl());
 
         playerView.setPlayer(player);
-        //player.setPlayWhenReady(true);
+
+        // Restore play if needed
+        player.setPlayWhenReady(videoRestorePlay);
     }
 
     private MediaSource buildMediaSource(Uri uri) {

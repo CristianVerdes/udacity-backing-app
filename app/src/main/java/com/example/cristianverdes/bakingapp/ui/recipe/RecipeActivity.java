@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.cristianverdes.bakingapp.R;
+import com.example.cristianverdes.bakingapp.ui.step.StepFragment;
 
 /**
  * Created by cristian.verdes on 15.03.2018.
@@ -16,9 +17,10 @@ import com.example.cristianverdes.bakingapp.R;
 public class RecipeActivity extends AppCompatActivity{
     private static final String RECIPE_ID = "recipeId";
     private static final String RECIPE_NAME = "recipeName";
-    private static final String TWO_PANE = "twoPane";
+    private static final String STEP_ID = "stepId";
+    private static final String IS_TABLET = "isTablet";
 
-    private boolean twoPane = false;
+    private boolean isTablet;
 
     public static void start(Context context, int recipeId, String recipeName) {
         Intent starter = new Intent(context, RecipeActivity.class);
@@ -33,52 +35,71 @@ public class RecipeActivity extends AppCompatActivity{
         setContentView(R.layout.activity_recipe);
 
         setCustomActionBar();
+
+        isTablet = getResources().getBoolean(R.bool.is_tablet);
+
         // We check savedInstanceState because we don't want to create a new fragment when the screen rotates
         if (savedInstanceState == null) {
-            if (findViewById(R.id.fl_steps_container) != null) {
+            // Get recipeId from Intent
+            int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
+
+            if (isTablet) {
                 // TABLET layout
-                twoPane = true;
+                // Create first fragment: RecipeFragment - (Master)
+                createRecipeFragment(R.id.fl_steps_container, recipeId);
 
-                RecipeFragment recipeFragment = new RecipeFragment();
-
-                // Send ID to fragment
-                Bundle bundle = new Bundle();
-                int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
-                bundle.putInt(RECIPE_ID, recipeId);
-                bundle.putBoolean(TWO_PANE, twoPane);
-                bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
-                recipeFragment.setArguments(bundle);
-
-                // Use Fragment manager and transition to add the fragment to the screen
-                FragmentManager fragmentManager = getSupportFragmentManager();
-
-                // Begin transition
-                fragmentManager.beginTransaction()
-                        .replace(R.id.fl_steps_container, recipeFragment)
-                        .commit();
+                // Create second fragment: Step fragment - (Detail)
+                // This is the first time the activity is lunched so the Step fragment must by the first one ( 0 ).
+                // After this the savedInstanceState will be != null so the Steps Adapter will be responsible to instantiate another Step fragment.
+                createStepFragment(recipeId);
 
             } else {
                 // PHONE layout
-                twoPane = false;
-
-                RecipeFragment recipeFragment = new RecipeFragment();
-
-                // Send ID to fragment
-                Bundle bundle = new Bundle();
-                int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
-                bundle.putInt(RECIPE_ID, recipeId);
-                bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
-                recipeFragment.setArguments(bundle);
-
-                // Use Fragment manager and transition to add the fragment to the screen
-                FragmentManager fragmentManager = getSupportFragmentManager();
-
-                // Begin transition
-                fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, recipeFragment)
-                        .commit();
+                createRecipeFragment(R.id.fragment_container, recipeId);
             }
         }
+    }
+
+    private void createRecipeFragment(int fragmentContainerId, int recipeId) {
+        RecipeFragment recipeFragment = new RecipeFragment();
+
+        // Send ID to fragment
+        Bundle bundle = new Bundle();
+        bundle.putInt(RECIPE_ID, recipeId);
+        bundle.putBoolean(IS_TABLET, isTablet);
+        bundle.putString(RECIPE_NAME, getIntent().getStringExtra(RECIPE_NAME));
+        recipeFragment.setArguments(bundle);
+
+        // Use Fragment manager and transition to add the fragment to the screen
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        // Begin transition
+        fragmentManager.beginTransaction()
+                .replace(fragmentContainerId, recipeFragment)
+                .commit();
+    }
+
+
+    // Used only in Tablet Layout
+    private void createStepFragment(int recipeId) {
+
+        // Create fragment
+        StepFragment stepFragment = new StepFragment();
+
+        // Send data to fragment
+        Bundle bundle = new Bundle();
+        bundle.putInt(RECIPE_ID, recipeId);
+        bundle.putInt(STEP_ID, 0);
+        bundle.putBoolean(IS_TABLET, true);
+        stepFragment.setArguments(bundle);
+
+        // Get Fragment Manager
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        // Begin transition
+        fragmentManager.beginTransaction()
+                .replace(R.id.fl_step_container, stepFragment)
+                .commit();
     }
 
     private void setCustomActionBar() {

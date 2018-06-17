@@ -24,7 +24,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
     private int recipeId;
     private String recipeName;
     private List<Step> steps;
-    private boolean twoPane = false;
+    private boolean isTablet = false;
 
     private ChangeStepFragmentData changeStepFragmentData = new ChangeStepFragmentData();
     private MutableLiveData<ChangeStepFragmentData> changeFragmentObservable = new MutableLiveData<>();
@@ -63,8 +63,8 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         return steps.size();
     }
 
-    public void setTwoPane(@Nullable boolean twoPane) {
-        this.twoPane = twoPane;
+    public void setIsTablet(@Nullable boolean tablet) {
+        this.isTablet = tablet;
     }
 
     // Getters
@@ -86,7 +86,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (twoPane) {
+                    if (isTablet) {
                         changeStepFragmentData.setRecipeId(recipeId);
                         changeStepFragmentData.setStepId(stepId);
                         changeFragmentObservable.setValue(changeStepFragmentData);
